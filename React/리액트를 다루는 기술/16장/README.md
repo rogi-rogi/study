@@ -1,3 +1,15 @@
+## Webpack 대신 Parcel 사용
+
+### 설치 및 실행
+```
+$ yarn global add parcel-bundler
+$ parcel index.html
+```
+### 접속
+```
+$parcel index.html
+```
+
 ```mermaid
     graph TB
         redux-lib --- STORE
@@ -7,7 +19,6 @@
             action -.-> reducer
             dispatch -->|call| reducer
             reducer -->|update| new_state
-            
             unsubscribe -->|call| subscribe
             listener-func -.-> subscribe
             subscribe -.-> |detect|id1{update}
