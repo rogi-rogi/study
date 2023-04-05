@@ -1,10 +1,18 @@
 ```mermaid
-    graph LR
-    action -,-> dispatch
-    dispatch --> call reducer
-    state -.-> reducer
-    action -.-> reducer
-    reducer --> |new state|store
+    graph TB
+        redux-lib --- STORE
+        subgraph STORE
+            state -.-> reducer
+            action -.-> dispatch
+            action -.-> reducer
+            dispatch -->|call| reducer
+            reducer -->|update| new_state
+            
+            unsubscribe -->|call| subscribe
+            listener-func -.-> subscribe
+            subscribe -.-> |detect|id1{update}
+            id1{update} -.->|call| listener-func
+        end
 ```
 
 ## action
