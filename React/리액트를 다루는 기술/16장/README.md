@@ -1,3 +1,19 @@
+## Webpack 대신 Parcel 사용
+
+### 설치 및 실행
+```
+$ yarn global add parcel-bundler
+$ parcel index.html
+```
+### 접속
+```
+http://localhost:1234
+```
+<br>
+<br>
+
+# redux
+
 ```mermaid
     graph TB
         redux-lib --- STORE
@@ -7,7 +23,6 @@
             action -.-> reducer
             dispatch -->|call| reducer
             reducer -->|update| new_state
-            
             unsubscribe -->|call| subscribe
             listener-func -.-> subscribe
             subscribe -.-> |detect|id1{update}
@@ -73,3 +88,17 @@ function reducer(state = initialState, action) {
 const unsubscribe = store.subscribe(listerner function);// 구독 활성화
 unsubscribe() // 구독 비활성화
 ```
+
+## 리덕스의 세 가지 규칙
+1. 단일 스토어<br>
+특정 부분을 완전히 분리시킬 때 여러 개의 스토어 만드는 것은 가능. <br>
+하지만, 상태 관리가 복잡해질 수 있어 권장하지 않음.<br>
+
+3. 읽기 전용 상태<br>
+상태를 업데이트 할 떄 불변성을 유지하기 위해 새로운 객체를 생성해 반환한다.<br>
+
+5. 리듀서는 순수한 함수<br>
+이전 상태와 액션 객체를 매개변수로 받는다.<br>
+매개변수 외의 값에는 의존하지 않는다.<br>
+이전 상태는 참조만하며, 새로운 상태 객체를 만들어 반환<br>
+동일한 매개변수로 호출 된 리듀서 함수는 항상 동일한 값을 반환해야한다.
