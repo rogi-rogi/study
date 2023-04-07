@@ -9,6 +9,10 @@ $ parcel index.html
 ```
 http://localhost:1234
 ```
+<br>
+<br>
+
+# redux
 
 ```mermaid
     graph TB
