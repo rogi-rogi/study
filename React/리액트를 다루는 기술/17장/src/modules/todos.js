@@ -1,10 +1,13 @@
-import { increase } from './counter';
+import { createAction } from 'redux-actions';
 
+// action name
 const CHANGE_INPUT = 'todos/CHANGE_INPUT';
 const INSERT = 'todos/INSERT';
 const TOGGLE = 'todos/TOGGLE';
 const REMOVE = 'todos/REMOVE';
 
+// action creator
+/*
 export const changeInput = (input) => ({
   type: CHANGE_INPUT,
   input,
@@ -25,7 +28,20 @@ export const remove = (id) => ({
   type: REMOVE,
   id,
 });
+*/
 
+// createAction으로 action creator 만들기
+export const changeInput = createAction(CHANGE_INPUT, (input) => input);
+let id = 3;
+export const insert = createAction(INSERT, (text) => ({
+  id: ++id,
+  text,
+  done: false,
+}));
+export const toggle = createAction(TOGGLE, (id) => id);
+export const remove = createAction(REMOVE, (id) => id);
+
+// reducer
 const initialState = {
   input: '',
   todos: [
@@ -34,7 +50,6 @@ const initialState = {
   ],
 };
 
-// reducer
 function todos(state = initialState, action) {
   switch (action.type) {
     case CHANGE_INPUT:
@@ -57,3 +72,5 @@ function todos(state = initialState, action) {
       return state;
   }
 }
+
+export default todos;
