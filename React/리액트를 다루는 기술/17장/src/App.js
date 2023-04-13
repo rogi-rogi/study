@@ -6,10 +6,8 @@ import TodosContainer from './container/TodosContainer';
 const App = () => {
   return (
     <div>
-      {/* <Counter number={0} /> */}
       <CounterContainer />
       <hr />
-      {/* <Todos /> */}
       <TodosContainer />
     </div>
   );
