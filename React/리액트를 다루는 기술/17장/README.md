@@ -1,70 +1,148 @@
-# Getting Started with Create React App
+### 설치할 라이브러리
+```
+$ yarn add redux react-redux
+$ yarn add redux-actions
+$ yarn add 
+```
+### 접속
+```
+http://localhost:3000
+```
+<br>
+<br>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#시작
+React에서 redux를 사용할 때는 store 내장 함수(dispatch, subscribe 등)를 직접 사용하지 않고,<br>
+react-redux lib에서 제공하는 유틸함수(connect)와 컴포넌트(Provider)를 사용한다.
 
-## Available Scripts
+# redux pattern
+```mermaid
+    graph TB
+        subgraph default pattern
+            container -->|action dispatch| redux-store
+            redux-store -->|send state| container
+            container -->|props| presentation
+        end
+```
+## structure
+가장 기본 방식으로는 actions, constants, reducers 으로 나누어서 사용하는 방식이 있다.
+하지만, 새로운 액션을 만들 때 마다 3개의 디렉토리에 있는 파일을 전부 수정해줘야 한다.
 
-In the project directory, you can run:
+modules이라는 디렉터리 내부에 action type, action creator, reducer func를 하나로 몰아 작성한 파일을 저장하는 방식.
+Ducks pettern이라고도 불린다.
 
-### `yarn start`
+<hr>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## root reducer
+modules 폴더에서 여러 reducer를 다루어야 하기에 루트 리듀서를 만들어 줘야 한다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```javascript
+  // src/modules/index.js
+  
+  import { combineReducers } from 'redux';
+  import counter from './counter';
+  import todos from './todos';
+  
+  const rootReducer = combineReducers({ counter, todos });
+  export default rootReducer;
+```
 
-### `yarn test`
+파일 이름이 index.js이기 떄문에 외부에서 사용할 떄는 디렉터리 이름만 입력해도 된다.
+```javascript
+  import rootReducer from './modules';
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<hr>
 
-### `yarn build`
+## store & Provider
+```javascript
+  // src/index.js
+  ...
+  import { createStore } from 'redux';
+  import { Provider } from 'react-redux'
+  
+  const store = createStore(rootReducer); 
+  ...
+  
+  root.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+<hr>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## store와 연동하기
+```javascript
+  // src/container/CounterContainer.js
+  import { connect } from 'react-redux';
+  ...
+  /*
+  connect(mapStateToProps, mapDispatchToProps)(연동한 컨테이너 컴포넌트)
+  connect함수는 컨테이너 컴포넌트를 인자로 받는 함수를 반환한다.
+  
+  mapStateToProps
+  : 리덕스 스토어 안의 상태를 컨테이너 컴포넌트의 props로 넘겨주기 위해 설정하는 함수
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  mapDispatchToProps
+  : 액션 생성 함수를 컨테이너 컴포넌트의 props로 넘겨주기 위해 사용하는 함수
+  */
+  ...
+  export default connect( (state) => (
+    { number: state.counter.number }), 
+    /*
+    (1)
+    (dispatch) => ({
+      increase: () => dispatch(increase()),
+      decrease: () => dispatch(decrease()),
+    })
+    
+    (2) import { bindActionCreators } from 'redux';
+    (dispatch) => bindActionCreators({ increase, decrease }, dispatch)
+    */
+    // mapDispatchToProps를 객체 형태로 넣어주면 connect 내부에서 bindActionCreators 작업을 대신해준다.
+    { increase, decrease }
+  )(CounterContainer);
+```
 
-### `yarn eject`
+<hr>
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## redux-action 사용해 손쉽게 action creator & reducer 만들기
+```javascript
+    // src/modules/todos.js
+    import { createAction, handleActions } from 'redux-actions';
+    
+    // export const changeInput = (input) => ({ type: CHANGE_INPUT, input });
+    export const changeInput = createAction(CHANGE_INPUT, (input) => input);
+    /*
+    createAction을 사용할 경우 추가데이터는 payload라는 프로퍼티 명으로 접근해야한다.
+    때문에, createAction의 두번째 인자에 payload에 대해 정의를 해주어야 한다.
+    */
+    
+    /*
+    function todos(state = initialState, action) {
+      switch (action.type) {
+        case CHANGE_INPUT :
+          return { ...state, input : action.input };
+        ...
+      }
+    }
+    */
+    const todos = handleActions({
+      // default
+      [CHANGE_INPUT] : ( state, action ) => ( {...state, action.payload} ),
+      // 객체 비구조화 할당으로 payload명 재정의
+      [INSERT] : ( state, {payload : todo} ) => ( {...state, todos:state.todos.concat(todo)} ),
+      // immer을 사용해 복잡한 구조를 가진 객체의 불변성 유지
+      [TOGGLE] : (state, {payload : id}) => produce(state, draft => {
+        const todo = draft.todos.find(todo => todo.id === id);
+        todo.done = !todo.done;
+      }),
+      ...
+      
+    }, initialState );
+```
+<hr>
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
