@@ -123,9 +123,20 @@ modules 폴더에서 여러 reducer를 다루어야 하기에 루트 리듀서�
     /*
     function todos(state = initialState, action) {
       switch (action.type) {
-        case CHANGE_INPUT :
-          return { ...state, input : action.input };
-        ...
+        case CHANGE_INPUT:
+          return { ...state, input: action.input };
+        case INSERT:
+          return { ...state, todos: state.todos.concat(action.todo) };
+        case TOGGLE:
+          return { ...state,
+            todo: state.todos.map((todo) => todo.id === action.id ? { ...todo, done: !todo.done } : todo)
+          };
+        case REMOVE:
+          return { ...state,
+            todos: state.todos.filter((todo) => todo.id !== action.id),
+          };
+        default:
+          return state;
       }
     }
     */
@@ -135,10 +146,10 @@ modules 폴더에서 여러 reducer를 다루어야 하기에 루트 리듀서�
       // 객체 비구조화 할당으로 payload명 재정의
       [INSERT] : ( state, {payload : todo} ) => ( {...state, todos:state.todos.concat(todo)} ),
       // immer을 사용해 복잡한 구조를 가진 객체의 불변성 유지
-      [TOGGLE] : (state, {payload : id}) => produce(state, draft => {
+      [TOGGLE] : ( state, {payload : id} ) => produce( state, draft => {
         const todo = draft.todos.find(todo => todo.id === id);
         todo.done = !todo.done;
-      }),
+      } ),
       ...
       
     }, initialState );
