@@ -11,9 +11,6 @@ const TodoItem = ({ todo, onToggle, onRemove }) => {
         {todo.text}
       </span>
       <button onClick={() => onRemove(todo.id)}>삭제</button>
-      {/* <input type="checkbox" />
-      <span>예제 테스트</span>
-      <button>삭제</button> */}
     </div>
   );
 };
