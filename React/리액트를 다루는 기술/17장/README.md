@@ -2,7 +2,7 @@
 ```
 $ yarn add redux react-redux
 $ yarn add redux-actions
-$ yarn add 
+$ yarn add immer
 ```
 ### 접속
 ```
@@ -116,8 +116,8 @@ modules 폴더에서 여러 reducer를 다루어야 하기에 루트 리듀서�
     // export const changeInput = (input) => ({ type: CHANGE_INPUT, input });
     export const changeInput = createAction(CHANGE_INPUT, (input) => input);
     /*
-    createAction을 사용할 경우 추가데이터는 payload라는 프로퍼티 명으로 접근해야한다.
-    때문에, createAction의 두번째 인자에 payload에 대해 정의를 해주어야 한다.
+    createAction을 사용할 경우 추가데이터는 payload라는 프로퍼티 명으로 접근해야 한다.
+    때문에, createAction의 두 번째 인자에 payload에 대해 정의를 해주어야 한다.
     */
     
     /*
@@ -156,4 +156,44 @@ modules 폴더에서 여러 reducer를 다루어야 하기에 루트 리듀서�
 ```
 <hr>
 
+# Hooks를 사용하여 컨테이너 컴포넌트 만들기
+
+## useSelector & useDispatch
+
+```javascript
+    const CounterContainer = () => {
+      // state
+      const number = useSelector((state) => state.counter.number);
+
+      // action
+      const dispatch = useDispatch();
+      const onIncrease = useCallback(() => dispatch(increase()), [dispatch]);
+      const onDecrease = useCallback(() => dispatch(decrease()), [dispatch]);
+      return (
+        <Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} />
+      );
+    };
+    export default CounterContainer;
+
+    /*
+    const CounterContainer = ({ number, increase, decrease }) => {
+      return (
+        <Counter number={number} onIncrease={increase} onDecrease={decrease} />
+      );
+    };
+
+    export default connect((state) => ({ number: state.counter.number }), {
+      increase,
+      decrease,
+    })(CounterContainer);
+    */
+```
+<br>
+
+## connect vs Hooks
+더 편한 것을 사용하자!
+단, connect를 사용해 컨테이너 컴포넌트를 만들 경우 부모 컴포넌트가 리렌더링될 때,
+해당 컨테이너 컴포넌트의 props가 바뀌지 않았다면 리렌더링이 자동으로 방지되어 성능이 최적화된다.
+
+하지만 Hooks는 이러한 최적화 작업이 자동으로 이루어 지지 않으니 React.memo를 컨테이너 컴포넌트에 사용해 주어야 한다.
 
