@@ -1,7 +1,7 @@
 ### 설치할 라이브러리
 ```
 $ yarn add redux react-redux
-$ yarn add redux-actions
+$ yarn add redux redux-actions
 $ yarn add immer
 ```
 ### 접속
