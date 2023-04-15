@@ -204,5 +204,143 @@ redux-thunk 다음으로 많이 사용하는 비동기 작업 관련 middleware�
 3. 웹소켓을 사용할 때
 4. API 요청 실패 시 재요청해야 할 때
 
-redux-saga는 제너레이터 함수 문법을 기반으로 비동기 작업을 관리해준다.
-즉, dispatch하는 action을 모니터링하며 필요한 작업을 따로 수행할 수 있는 middleware이다.
+redux-saga는 제너레이터 함수 문법을 기반으로 비동기 작업을 관리해준다.<br>
+즉, dispatch하는 action을 모니터링하며 필요한 작업을 따로 수행할 수 있는 middleware이다.<br>
+
+<hr>
+
+## saga 만들기
+
+takeEvery는 들어오는 모든 액션에 대해 특정 작업을 처리<br>
+takeLastest는 기존에 진행중인 작업이 있다면 취소하고, 가장 마지막으로 실행된 작업만 수행.<br>
+
+```javascript
+// modules/counter.js
+import { delay, put, takeEvery, takeLatest } from "redux-saga/effects";
+
+const INCREASE_ASYNC = "counter/INCREASE_ASYNC";
+const DECREASE_ASYNC = "counter/DECREASE_ASYNC";
+
+export const increaseAsync = createAction(INCREASE_ASYNC, () => undefined);
+export const decreaseAsync = createAction(DECREASE_ASYNC, () => undefined);
+
+function* increaseSaga() {
+  yield delay(1000);
+  yield put(increase());
+}
+
+function* decreaseSaga() {
+  yield delay(1000);
+  yield put(decrease());
+}
+
+export function* counterSaga() {
+  yield takeEvery(INCREASE_ASYNC, increaseSaga);
+  yield takeLatest(DECREASE_ASYNC, decreaseSaga);
+}
+```
+
+<hr>
+
+## root saga
+
+```javascript
+// modules/index.js
+
+import { counterSaga } from "./counter";
+import { all } from "redux-saga/effects";
+
+export function* rootSaga() {
+  yield all([counterSaga()]);
+}
+
+// index.js
+import { rootSaga } from "./modules";
+import createSagaMiddleware from "@redux-saga/core";
+
+const sagaMiddleware = createSagaMiddleware();
+const store = createStore(
+  rootReducer,
+  applyMiddleware(logger, thunk, sagaMiddleware)
+);
+
+sagaMiddleware.run(rootSaga);
+```
+
+<hr>
+
+## saga 작성하기
+
+```javascript
+// modules/sample.js
+export const getPost = createAction(GET_POST, (id) => id);
+export const getUsers = createAction(GET_USERS);
+
+function* getPostSaga(action) {
+  yield put(startLoading(GET_POST));
+  try {
+    const post = yield call(api.getPost, action.payload);
+    yield put({ type: GET_POST_SUCCESS, payload: post.data });
+  } catch (e) {
+    yield put({ type: GET_POST_FAILURE, payload: e, error: true });
+  }
+  yield put(finishLoading(GET_POST));
+}
+
+function* getUsersSaga(action) {
+  yield put(startLoading(GET_USERS));
+  try {
+    const users = yield call(api.getUsers, action.payload);
+    yield put({ type: GET_USERS_SUCCESS, payload: users.data });
+  } catch (e) {
+    yield put({ type: GET_USERS_FAILURE, payload: e, error: true });
+  }
+  yield put(finishLoading(GET_USERS));
+}
+
+export function* sampleSaga() {
+  yield takeLatest(GET_POST, getPostSaga);
+  yield takeLatest(GET_USERS, getUsersSaga);
+}
+```
+
+## saga refactoring
+
+```javascript
+// modules/sample.js
+
+import createRequestSaga from "../lib/createRequestSaga";
+
+const getPostSaga = createRequestSaga(GET_POST, api.getPost);
+const getUsersSaga = createRequestSaga(GET_USERS, api.getUsers);
+
+// lib/createRequestSaga.js
+
+import { call, put } from "redux-saga/effects";
+import { startLoading, finishLoading } from "../modules/loading";
+
+export default function createRequestSaga(type, request) {
+  const SUCCESS = `${type}_SUCCESS`;
+  const FAILURE = `${type}_FAILURE`;
+
+  return function* (action) {
+    yield put(startLoading(type));
+    try {
+      const response = yield call(request, action.payload);
+      yield put({ type: SUCCESS, payload: response.data });
+    } catch (e) {
+      yield put({ type: FAILURE, payload: e, error: true });
+    }
+    yield put(finishLoading(type));
+  };
+}
+```
+
+<hr>
+
+## 정리
+
+비동기 작업을 처리할 떄 redux-thunk는 사용하기 쉽다는 장점이 있고,<br>
+redux-safa는 진입 장벽이 있지만 복잡한 상황에서 효율적으로 작업을 관리할 수 있다는 장점이 있다.<br>
+<br>
+결국 middleware를 사용하는 이유는 비동기 작업을 좀 더 편하게 처리하기 위해서이다.<br>
