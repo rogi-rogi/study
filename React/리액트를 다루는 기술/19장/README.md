@@ -40,7 +40,7 @@ const SplitMe = React.lazy(() => import("./SplitMe"));
 
 ## Loadable component
 
-서버 사이트 렌더링을 지원하면서, 코드 스플리팅을 편하게 하도록 도와주는 서드파티 라이브러리 이다.<br>
+서버 사이드 렌더링을 지원하면서, 코드 스플리팅을 편하게 하도록 도와주는 서드파티 라이브러리 이다.<br>
 React.lazy와 사용법이 비슷하지만, Susoense를 사용할 필요가 없다.<br>
 
 ```javascript
