@@ -18,6 +18,30 @@ CRA의 기본 webpack 설정에는 SplitChunks라는 기능이 적용되어 node
 
 <hr>
 
+## dynamic import
+
+파일 상단에 import를 작성해 필요한 파일을 불러오는 방법이 아닌, 필요한 지점에서 파일을 불러올 수 있게 해준다.<br>
+
+```javascript
+// notify.js
+export default function notify() {
+  alert("안녕하세요!");
+}
+
+// import notify from ./notify
+const onClick = () => {
+  import("./notify").then((result) => result.default());
+}; // onClick 이벤트가 발생했을 때 notify.js를 불러온다.
+/*
+
+// 아래와 동일하다.
+const onClick = async () => {
+  const loadedModule = await import('./notify');
+  loadedModule.default();
+}
+*/
+```
+
 ## React.lazy & Suspense component
 
 React.lazy는 컴포넌트를 렌더링 하는 시정에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수이다.<br>
@@ -29,7 +53,6 @@ fallback props를 통해 로딩 중에 보여 줄 JSX를 지정할 수 있다.<b
 import { Suspense } from "react";
 
 const SplitMe = React.lazy(() => import("./SplitMe"));
-...
 
 <Suspense fallback={<div>loading...</div>}>
   <SplitMe />
