@@ -42,6 +42,8 @@ const onClick = async () => {
 */
 ```
 
+<hr>
+
 ## React.lazy & Suspense component
 
 React.lazy는 컴포넌트를 렌더링 하는 시정에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수이다.<br>
