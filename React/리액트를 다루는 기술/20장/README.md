@@ -147,18 +147,33 @@ export default function Stories() {
 
 ```
 
-action 함수를 이용하기 위해서는(데이터 쓰기를 위해서는) Remix에서 제공하는 Form 컴포넌트를 사용해야 한다.<br>
+### Form
 
-Remix의 Form 컴포넌트를 통해 등록을 하면 Remix 서버로 데이터가 전달되고,
-서버에서 action 함수를 호출한 결과를 브라우저에게 보낸다.<br>
-응답된 데이터를 사용하고 싶으면 useActionData Hook을 사용하면 된다.<br>
-이후 useLoaderData Hook을 통해 불러온 데이터가 자동으로 최신화가 된다.<br>
+action 함수를 이용하기 위해서는(데이터 쓰기를 위해서는) Remix에서 제공하는 Form 컴포넌트를 사용해야 한다.<br>
 useTransition Hook는 Form의 상태를 조회할 때 사용된다.<br>
-기본상태는 'idle',<br>
-데이터 쓰기 요청 중에는 'submitting',<br>
-데이터 쓰기 후 useLoaderData Hook의 데이터를 불러오는 중에는 'loading'값을 가진다.<br>
+Hook의 state는 아래와 같은 상태값이 있다.<br>
+
+- 기본 상태 :'idle'
+- 데이터 쓰기 요청 중 : 'submitting'
+- 데이터 쓰기 후 useLoaderData Hook의 데이터를 불러오는 중 : 'loading'
 
 <hr>
+
+## 데이트 쓰기 및 업데이트 과정
+
+1. Remix의 Form 컴포넌트를 통해 등록을 하면 Remix 서버로 데이터가 전달된다.
+2. 서버에서 action 함수를 호출한 결과를 브라우저에게 보낸다.
+3. 응답된 데이터를 사용하고 싶으면 useActionData Hook을 사용하면 된다.
+4. 이후 useLoaderData Hook을 통해 불러온 데이터가 자동으로 최신화가 된다.
+
+<hr>
+
+## 배포
+
+```
+$ yarn build
+$ yarn start
+```
 
 ### remix.config.js 설정
 
