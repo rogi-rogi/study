@@ -1,3 +1,6 @@
+## 책 외의 참고처
+https://velog.io/@velopert/learn-remix
+
 ## 설치할 라이브러리
 
 ```
