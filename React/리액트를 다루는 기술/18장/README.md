@@ -18,7 +18,8 @@ http://localhost:3000
 <br>
 <br>
 
-#시작
+# 시작
+
 React에서 redux를 사용하고 있고, 비동기 작업을 관리해야 한다면, <br>
 middleware를 사용해 손쉽게 관리할 수 있다.
 
